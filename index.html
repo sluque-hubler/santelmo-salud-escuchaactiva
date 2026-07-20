@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Business Scanner · San Telmo Business School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   BRAND TOKENS — SAN TELMO BUSINESS SCHOOL (navy + gold, fondo claro)
+   Navy institucional #24346C · Oro #C9A24C · Tipografía Lato
+   ===================================================================== */
+:root{
+  --brand-blue:        #24346C;   /* Navy institucional — primary */
+  --brand-cobalt:      #33478C;   /* Navy secundario */
+  --brand-sky:         #C9A24C;   /* Oro — accent (antiguos alumnos, medium) */
+  --brand-deep:        #1B2650;   /* Navy profundo */
+  --brand-graphite:    #212121;
+  --brand-gray:        #6B7280;
+  --brand-light:       #F4F4F4;
+  --brand-gold:        #C9A24C;   /* Oro San Telmo */
+  --brand-gold-2:      #B8913E;   /* Oro oscuro */
+  --brand-gold-soft:   rgba(201,162,76,.14);
+
+  /* Light surface ramp */
+  --bg-0: #FFFFFF;        /* page bg (predominant) */
+  --bg-1: #F8FAFD;
+  --bg-2: #F1F5FB;
+  --bg-3: #E8EEF7;
+
+  /* Hairlines */
+  --line:    rgba(15, 23, 42, 0.08);
+  --line-2:  rgba(15, 23, 42, 0.14);
+
+  /* Text ramp (deep navy → slate) */
+  --text-1:  #0F172A;
+  --text-2:  #475569;
+  --text-3:  #64748B;
+  --text-4:  #94A3B8;
+
+  /* Glass surfaces — gray semi-opaque on white */
+  --glass:        rgba(226, 232, 240, 0.55);
+  --glass-soft:   rgba(248, 250, 253, 0.65);
+  --glass-strong: rgba(214, 224, 240, 0.62);
+  --glass-border: rgba(15, 23, 42, 0.08);
+  --glass-edge:   rgba(255, 255, 255, 0.85);
+
+  /* Relevance scale (tuned for white bg legibility) */
+  --rel-critical: #B4384A;
+  --rel-high:     #24346C;
+  --rel-medium:   #C9A24C;
+  --rel-low:      #94A3B8;
+
+  --ok-green:     #16A34A;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html, body{
+  font-family: 'Lato', sans-serif;
+  background: var(--bg-0);
+  color: var(--text-1);
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "ss02";
+}
+button{ font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+a{ color: inherit; text-decoration: none; }
+.mono{ font-family: 'JetBrains Mono', monospace; font-feature-settings: normal; }
+
+/* =====================================================================
+   GLOBAL BACKGROUND — white field with blue geodetic contour lines
+   ===================================================================== */
+.bg-contours{
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: 1;
+}
+.bg-contours .gradient-overlay{
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 18% 20%,  rgba(36,52,108,.05)  0%, transparent 45%),
+    radial-gradient(circle at 88% 78%,  rgba(201,162,76,.06) 0%, transparent 55%),
+    radial-gradient(circle at 70% 10%,  rgba(36,52,108,.04)  0%, transparent 40%);
+}
+
+/* =====================================================================
+   APP SHELL
+   ===================================================================== */
+.app{
+  position: relative; z-index: 1;
+  display: block;
+  height: 100vh;
+}
+
+/* =====================================================================
+   FLOATING HAMBURGER (liquid glass circle, fixed top-left)
+   ===================================================================== */
+.hamburger-btn{
+  position: fixed;
+  top: 20px; left: 20px;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--glass);
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 6px 22px rgba(15,23,42,.10),
+    0 1px 2px rgba(15,23,42,.06),
+    inset 0 1px 0 rgba(255,255,255,.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 90;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s;
+}
+.hamburger-btn:hover{
+  transform: scale(1.04);
+  box-shadow:
+    0 10px 28px rgba(15,23,42,.14),
+    0 2px 4px rgba(15,23,42,.08),
+    inset 0 1px 0 rgba(255,255,255,.95);
+}
+.hamburger-btn.open{
+  background: rgba(36,52,108,.08);
+  border-color: rgba(36,52,108,.25);
+}
+.hamburger-icon{
+  position: relative;
+  width: 18px; height: 14px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.hamburger-icon span{
+  display: block; height: 2px; width: 100%;
+  background: var(--text-1);
+  border-radius: 2px;
+  transition: transform .22s ease, opacity .22s ease, background .18s;
+}
+.hamburger-btn.open .hamburger-icon span{ background: var(--brand-blue); }
+.hamburger-btn.open .hamburger-icon span:nth-child(1){
+  transform: translateY(6px) rotate(45deg);
+}
+.hamburger-btn.open .hamburger-icon span:nth-child(2){
+  opacity: 0;
+}
+.hamburger-btn.open .hamburger-icon span:nth-child(3){
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* =====================================================================
+   MENU DRAWER (drops down from hamburger)
+   ===================================================================== */
+.menu-drawer{
+  position: fixed;
+  top: 80px; left: 20px;
+  width: 280px;
+  max-height: calc(100vh - 100px);
+  border-radius: 16px;
+  background: var(--glass);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 20px 50px rgba(15,23,42,.14),
+    0 4px 12px rgba(15,23,42,.06),
+    inset 0 1px 0 rgba(255,255,255,.85);
+  padding: 18px 14px 14px;
+  overflow-y: auto;
+  z-index: 95;
+
+  opacity: 0;
+  transform: translateY(-8px) scale(.98);
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+}
+.menu-drawer.open{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.menu-drawer::before{
+  content:""; position: absolute;
+  top: 0; left: 14px; right: 14px; height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,.95) 30%,
+    rgba(201,162,76,.45) 50%,
+    rgba(255,255,255,.95) 70%,
+    transparent 100%);
+}
+
+.menu-backdrop{
+  position: fixed; inset: 0;
+  background: transparent;
+  z-index: 88;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+.menu-backdrop.open{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Drawer-internal items reuse existing .brand / .nav / .nav-item / .sidebar-bottom styles */
+.menu-drawer .brand{
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 8px 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.menu-drawer .brand-logo{
+  font-size: 22px; font-weight: 700; letter-spacing: -0.04em;
+  color: var(--text-1); line-height: 1;
+}
+.menu-drawer .brand-logo .dot{ color: var(--brand-blue); }
+.menu-drawer .brand-logo-wrap{
+  display: flex; align-items: center;
+  height: 34px;
+}
+.menu-drawer .brand-logo-app{
+  height: 34px; width: auto; display: block;
+}
+.menu-drawer .brand-meta{ display: flex; flex-direction: column; gap: 2px; }
+.menu-drawer .brand-product{
+  font-size: 11px; font-weight: 500; letter-spacing: .14em;
+  color: var(--text-1); text-transform: uppercase; line-height: 1;
+}
+.menu-drawer .brand-tag{
+  font-size: 9px; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--text-3); line-height: 1;
+}
+
+.menu-drawer .nav-label{
+  font-size: 9px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--text-4); padding: 12px 10px 6px;
+  font-weight: 500;
+}
+.menu-drawer .nav{ display: flex; flex-direction: column; gap: 2px; }
+.menu-drawer .nav-item{
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: var(--text-2);
+  font-size: 13px; font-weight: 500;
+  position: relative;
+  transition: all .15s ease;
+  cursor: pointer;
+  width: 100%;
+}
+.menu-drawer .nav-item:hover{
+  background: rgba(255,255,255,0.55);
+  color: var(--text-1);
+}
+.menu-drawer .nav-item.active{
+  background: linear-gradient(90deg,
+    rgba(36,52,108,.12) 0%,
+    rgba(36,52,108,.02) 90%);
+  color: var(--brand-blue);
+  box-shadow: inset 0 0 0 1px rgba(36,52,108,.15);
+}
+.menu-drawer .nav-item.active::before{
+  content:""; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; background: var(--brand-blue); border-radius: 0 2px 2px 0;
+}
+.menu-drawer .nav-item .icon{
+  width: 16px; height: 16px; flex-shrink: 0;
+  opacity: 0.85;
+}
+.menu-drawer .nav-item.active .icon{ opacity: 1; color: var(--brand-blue); }
+.menu-drawer .nav-item .label{ flex: 1; text-align: left;}
+.menu-drawer .nav-item .badge{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 99px;
+  background: rgba(15,23,42,0.06);
+  color: var(--text-2);
+}
+.menu-drawer .nav-item.active .badge{
+  background: var(--brand-blue);
+  color: #fff;
+}
+
+.menu-drawer .sidebar-bottom{
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.menu-drawer .sidebar-bottom::before{
+  content:""; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(36,52,108,.07), transparent 60%);
+  pointer-events: none;
+}
+.status-row{ display: flex; align-items: center; gap: 10px; }
+.status-dot{
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ok-green);
+  box-shadow: 0 0 0 4px rgba(22,163,74,.15), 0 0 10px rgba(22,163,74,.4);
+  animation: pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse{
+  0%,100%{ box-shadow: 0 0 0 4px rgba(22,163,74,.15), 0 0 10px rgba(22,163,74,.4);}
+  50%   { box-shadow: 0 0 0 7px rgba(22,163,74,.05), 0 0 18px rgba(22,163,74,.6);}
+}
+.status-text{ font-size: 11px; font-weight: 500; color: var(--text-1);}
+.status-meta{
+  font-size: 10px; color: var(--text-3); margin-top: 8px;
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* =====================================================================
+   MAIN AREA
+   ===================================================================== */
+.main{
+  display: flex; flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Top bar */
+.topbar{
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 32px 18px 88px; /* extra left padding for floating hamburger */
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+.topbar-left{ display:flex; flex-direction: column; gap: 4px;}
+.page-eyebrow{
+  font-size: 10px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--text-4); font-weight: 500;
+}
+.page-eyebrow .live{
+  display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ok-green); margin-right: 6px; vertical-align: middle;
+  box-shadow: 0 0 8px rgba(22,163,74,.45);
+}
+.page-title{
+  font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
+  color: var(--text-1);
+}
+.page-title .accent{ color: var(--brand-blue);}
+
+.topbar-right{ display: flex; align-items: center; gap: 12px;}
+
+.search{
+  position: relative;
+  width: 260px;
+}
+.search input{
+  width: 100%;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px 8px 34px;
+  color: var(--text-1);
+  font-family: 'Lato', sans-serif;
+  font-size: 12px;
+  outline: none;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.search input::placeholder{ color: var(--text-4); }
+.search input:focus{
+  border-color: rgba(36,52,108,.35);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(36,52,108,.08);
+}
+.search svg{
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: var(--text-3); pointer-events: none;
+}
+
+.icon-btn{
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.7);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-2);
+  transition: all .15s;
+  position: relative;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.icon-btn:hover{ color: var(--text-1); border-color: var(--line-2); background: #fff;}
+.icon-btn .dot-mark{
+  position: absolute; top: 7px; right: 7px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--rel-critical);
+  box-shadow: 0 0 6px rgba(180,56,74,.5);
+}
+
+.user-chip{
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.user-avatar{
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-blue), var(--brand-sky));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  color: #fff;
+}
+.user-info{ display: flex; flex-direction: column;}
+.user-name{ font-size: 11px; font-weight: 500; line-height: 1.2; color: var(--text-1);}
+.user-role{ font-size: 9px; color: var(--text-3); line-height: 1.2;}
+
+/* Filter row */
+.filter-row{
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+  overflow-x: auto;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.filter-row::-webkit-scrollbar{ display: none; }
+
+/* Sector / Vertical dropdown buttons */
+.filter-dd-wrap{ position: relative; flex-shrink: 0; }
+.filter-dd{
+  padding: 6px 10px 6px 12px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: 11.5px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 8px;
+  white-space: nowrap;
+  transition: all .15s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+.filter-dd:hover{ background: #fff; border-color: var(--line-2); color: var(--text-1);}
+.filter-dd.has-value{
+  background: rgba(36,52,108,.08);
+  border-color: rgba(36,52,108,.30);
+  color: var(--brand-blue);
+}
+.filter-dd .dd-key{
+  font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--text-4); font-weight: 600;
+}
+.filter-dd.has-value .dd-key{ color: var(--brand-blue); opacity: .8;}
+.filter-dd .dd-val{
+  font-weight: 600;
+  color: var(--text-1);
+  max-width: 160px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.filter-dd.has-value .dd-val{ color: var(--brand-blue);}
+.filter-dd .dd-chev{
+  width: 12px; height: 12px;
+  transition: transform .18s;
+  opacity: .6;
+}
+.filter-dd.open .dd-chev{ transform: rotate(180deg); }
+
+/* ---------------------------------------------------------------------
+   PRIMARY FILTERS — Sector + Vertical destacados (núcleo de segmentación)
+   --------------------------------------------------------------------- */
+.primary-filters{
+  display: inline-flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+  padding: 7px 10px 7px 12px;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(36,52,108,.09), rgba(36,52,108,.03));
+  border: 1px solid rgba(36,52,108,.22);
+  box-shadow:
+    0 4px 16px rgba(36,52,108,.10),
+    inset 0 1px 0 rgba(255,255,255,.7);
+  position: relative;
+}
+.primary-filters::before{
+  content:""; position: absolute; inset: -1px;
+  border-radius: 14px; pointer-events: none;
+  box-shadow: 0 0 0 0 rgba(36,52,108,.35);
+  animation: pfGlow 3.4s ease-in-out infinite;
+}
+@keyframes pfGlow{
+  0%,100%{ box-shadow: 0 0 0 0 rgba(36,52,108,.30);}
+  50%    { box-shadow: 0 0 0 5px rgba(36,52,108,0);}
+}
+.pf-label{
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+  font-weight: 700; color: var(--brand-blue);
+  padding-right: 4px; white-space: nowrap;
+}
+.pf-label svg{ width: 14px; height: 14px; }
+
+/* Reinforced dropdown look for the two primary selectors */
+.filter-dd--primary{
+  padding: 8px 12px 8px 14px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1.5px solid rgba(36,52,108,.30);
+  font-size: 12.5px;
+  box-shadow: 0 2px 8px rgba(36,52,108,.10);
+}
+.filter-dd--primary .dd-key{
+  color: var(--brand-blue); opacity: .9; font-size: 10px;
+}
+.filter-dd--primary .dd-chev{ opacity: .85; color: var(--brand-blue); }
+.filter-dd--primary:hover{
+  background: #fff;
+  border-color: var(--brand-blue);
+  box-shadow: 0 4px 14px rgba(36,52,108,.18);
+}
+.filter-dd--primary.has-value{
+  background: var(--brand-blue);
+  border-color: var(--brand-blue);
+  box-shadow: 0 4px 14px rgba(36,52,108,.28);
+}
+.filter-dd--primary.has-value .dd-key{ color: rgba(255,255,255,.85); opacity: 1; }
+.filter-dd--primary.has-value .dd-val{ color: #fff; }
+.filter-dd--primary.has-value .dd-chev{ color: #fff; opacity: .9; }
+
+.dd-popover{
+  position: fixed;
+  min-width: 240px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 16px 40px rgba(15,23,42,.12),
+    0 2px 8px rgba(15,23,42,.05),
+    inset 0 1px 0 rgba(255,255,255,.9);
+  padding: 6px;
+  z-index: 200;
+  display: none;
+  flex-direction: column; gap: 1px;
+}
+.dd-popover.open{ display: flex; animation: ddIn .16s ease;}
+@keyframes ddIn{ from{ opacity:0; transform: translateY(-4px);} to{ opacity:1; transform: translateY(0);} }
+.dd-option{
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12.5px; font-weight: 500;
+  color: var(--text-2);
+  display: flex; align-items: center; gap: 10px;
+  transition: background .12s, color .12s;
+  cursor: pointer;
+}
+.dd-option:hover{ background: rgba(15,23,42,0.04); color: var(--text-1);}
+.dd-option.active{ background: rgba(36,52,108,.08); color: var(--brand-blue);}
+.dd-option .dd-check{
+  width: 14px; height: 14px;
+  border-radius: 4px;
+  border: 1.5px solid var(--text-4);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.6);
+  transition: all .12s;
+}
+.dd-option.active .dd-check{
+  border-color: var(--brand-blue);
+  background: var(--brand-blue);
+}
+.dd-option.active .dd-check::after{
+  content:""; width: 6px; height: 6px;
+  background: #fff; border-radius: 1px;
+  transform: scale(1);
+}
+
+/* Hide source-specific chips on Personas / Centros views (sources only apply to Señales) */
+body.view-people .filter-source,
+body.view-people .filter-divider,
+body.view-people .filter-sort,
+body.view-centers .filter-source,
+body.view-centers .filter-divider,
+body.view-centers .filter-sort{
+  display: none !important;
+}
+
+/* Alumni badge (oro San Telmo) + relación tags + acción sugerida */
+.alumni-badge{
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 99px;
+  background: var(--brand-gold-soft);
+  color: var(--brand-gold-2);
+  border: 1px solid rgba(201,162,76,.35);
+  white-space: nowrap;
+}
+.alumni-badge svg{ width: 11px; height: 11px; }
+.relation-tag{
+  font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
+  padding: 3px 8px; border-radius: 99px; white-space: nowrap;
+}
+.relation-tag.alumni{ background: var(--brand-gold-soft); color: var(--brand-gold-2); border:1px solid rgba(201,162,76,.35); }
+.relation-tag.prospect{ background: rgba(36,52,108,.08); color: var(--brand-blue); border:1px solid rgba(36,52,108,.20); }
+.opp-action{
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600;
+  padding: 5px 11px; border-radius: 8px;
+  border: 1px solid transparent; white-space: nowrap;
+}
+.opp-action svg{ width: 13px; height: 13px; }
+.opp-action.felicitar{ background: var(--brand-gold-soft); color: var(--brand-gold-2); border-color: rgba(201,162,76,.35); }
+.opp-action.formar{ background: rgba(36,52,108,.08); color: var(--brand-blue); border-color: rgba(36,52,108,.22); }
+/* Titularidad pill on center cards */
+.titularidad-pill{
+  font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700;
+  padding: 2px 8px; border-radius: 99px;
+}
+.titularidad-pill.publico{ background: rgba(36,52,108,.10); color: var(--brand-blue); }
+.titularidad-pill.privado{ background: var(--brand-gold-soft); color: var(--brand-gold-2); }
+
+.filter-chip{
+  padding: 6px 12px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: 11.5px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+  transition: all .15s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.filter-chip:hover{ color: var(--text-1); border-color: var(--line-2); background: #fff;}
+.filter-chip.active{
+  background: rgba(36,52,108,.08);
+  border-color: rgba(36,52,108,.30);
+  color: var(--brand-blue);
+}
+.filter-chip .chip-count{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 99px;
+  background: rgba(15,23,42,0.06);
+  color: var(--text-3);
+}
+.filter-chip.active .chip-count{
+  background: var(--brand-blue);
+  color: #fff;
+}
+.filter-divider{
+  width: 1px; height: 18px; background: var(--line); margin: 0 6px;
+  flex-shrink: 0;
+}
+.filter-sort{
+  margin-left: auto;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-3);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+.filter-sort .sort-key{ color: var(--text-1); font-weight: 500;}
+
+/* Scrollable content area */
+.content{
+  flex: 1; overflow-y: auto;
+  padding: 24px 32px 60px;
+  position: relative;
+}
+.content::-webkit-scrollbar{ width: 8px;}
+.content::-webkit-scrollbar-track{ background: transparent;}
+.content::-webkit-scrollbar-thumb{
+  background: rgba(15,23,42,0.12); border-radius: 4px;
+}
+.content::-webkit-scrollbar-thumb:hover{ background: rgba(15,23,42,0.22);}
+
+/* =====================================================================
+   OPPORTUNITY CARDS — glass cards over white+contour bg
+   ===================================================================== */
+.opps-list{ display: flex; flex-direction: column; gap: 12px; }
+.opp-card{
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 18px;
+  padding: 18px 20px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: all .2s ease;
+  cursor: pointer;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  box-shadow: 0 1px 2px rgba(15,23,42,.03);
+}
+.opp-card:hover{
+  background: #fff;
+  border-color: var(--line-2);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04);
+}
+/* Left accent bar based on relevance */
+.opp-card::before{
+  content:""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.opp-card[data-rel="critical"]::before{ background: var(--rel-critical);}
+.opp-card[data-rel="high"]::before{     background: var(--brand-blue);}
+.opp-card[data-rel="medium"]::before{   background: var(--brand-sky);}
+.opp-card[data-rel="low"]::before{      background: var(--text-4);}
+
+.opp-source{
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: rgba(15,23,42,0.04);
+  border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.opp-source svg{ width: 20px; height: 20px;}
+
+.opp-body{ display: flex; flex-direction: column; gap: 4px; min-width: 0;}
+.opp-meta-row{
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+}
+.opp-source-name{
+  font-size: 11px; font-weight: 600;
+  color: var(--text-2); letter-spacing: .03em;
+}
+.opp-meta-sep{ color: var(--text-4);}
+.opp-time{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-3);
+}
+.opp-type-tag{
+  font-size: 9.5px; letter-spacing: .15em; text-transform: uppercase;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(201,162,76,.12);
+  color: var(--brand-deep);
+}
+.opp-type-tag.tender{ background: rgba(180,56,74,.10); color: var(--rel-critical);}
+.opp-type-tag.capital{ background: rgba(22,163,74,.12); color: var(--ok-green);}
+.opp-type-tag.job{ background: rgba(36,52,108,.10); color: var(--brand-blue);}
+
+.opp-company-link{
+  font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  color: var(--brand-blue); margin-top: 2px;
+  display: inline-flex; align-items: center; gap: 5px;
+  text-transform: uppercase;
+}
+.opp-company-link:hover{ color: var(--brand-cobalt);}
+.opp-company-link svg{ width: 11px; height: 11px;}
+
+.opp-title{
+  font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
+  color: var(--text-1); line-height: 1.35;
+  margin: 4px 0 6px;
+}
+.opp-summary{
+  font-size: 13px; color: var(--text-2); line-height: 1.55;
+  max-width: 720px;
+}
+.opp-tags{
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 10px;
+}
+.opp-tag{
+  font-size: 10.5px; padding: 3px 9px;
+  border-radius: 99px;
+  background: rgba(15,23,42,0.04);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.opp-tag svg{ width: 11px; height: 11px; opacity: .7;}
+
+.opp-right{
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 8px; min-width: 100px;
+  justify-content: space-between;
+}
+.opp-rel-badge{
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; letter-spacing: .15em; text-transform: uppercase;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: rgba(15,23,42,0.04);
+  border: 1px solid var(--line);
+}
+.opp-rel-badge .rel-pip{
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.opp-rel-badge.critical{ color: var(--rel-critical);}
+.opp-rel-badge.critical .rel-pip{ background: var(--rel-critical); box-shadow: 0 0 6px rgba(180,56,74,.5);}
+.opp-rel-badge.high{ color: var(--brand-blue);}
+.opp-rel-badge.high .rel-pip{ background: var(--brand-blue); box-shadow: 0 0 6px rgba(36,52,108,.5);}
+.opp-rel-badge.medium{ color: var(--brand-deep);}
+.opp-rel-badge.medium .rel-pip{ background: var(--brand-sky); box-shadow: 0 0 6px rgba(201,162,76,.5);}
+.opp-rel-badge.low{ color: var(--text-3);}
+.opp-rel-badge.low .rel-pip{ background: var(--text-4);}
+
+.opp-amount{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px; font-weight: 600;
+  color: var(--text-1);
+  display: flex; flex-direction: column; align-items: flex-end;
+  line-height: 1;
+}
+.opp-amount .label{
+  font-family: 'Lato', sans-serif;
+  font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--text-3); font-weight: 500;
+  margin-bottom: 4px;
+}
+
+/* =====================================================================
+   DAY DIVIDER
+   ===================================================================== */
+.day-divider{
+  display: flex; align-items: center; gap: 12px;
+  margin: 18px 0 10px;
+  font-size: 11px; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--text-3); font-weight: 500;
+}
+.day-divider:first-child{ margin-top: 0; }
+.day-divider .day-line{
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--line-2), transparent);
+}
+.day-divider .day-count{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--text-4); letter-spacing: 0;
+}
+
+/* =====================================================================
+   DIRECTORY CARDS (Personas / Centros)
+   ===================================================================== */
+.companies-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+.company-card{
+  background: rgba(255,255,255,0.72);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px 16px;
+  cursor: pointer;
+  transition: all .18s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  box-shadow: 0 1px 2px rgba(15,23,42,.03);
+}
+.company-card::before{
+  content:""; position: absolute; right: -40px; top: -40px;
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(36,52,108,.10), transparent 70%);
+  pointer-events: none;
+}
+.company-card:hover{
+  border-color: rgba(36,52,108,.25);
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.04);
+}
+.company-card-head{
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px;
+}
+.company-icon{
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--brand-blue), var(--brand-sky));
+  border: 1px solid rgba(36,52,108,.20);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(36,52,108,.18);
+}
+.company-name{
+  font-size: 15px; font-weight: 600; color: var(--text-1);
+  letter-spacing: -0.01em; line-height: 1.25;
+}
+.company-meta{
+  font-size: 11px; color: var(--text-3);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 3px;
+}
+.company-relevance{
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-2);
+  margin-top: 2px;
+}
+.relevance-bars{ display:flex; gap: 2px; align-items:flex-end; height: 14px;}
+.relevance-bars span{
+  width: 3px; background: rgba(15,23,42,0.18); border-radius: 1px;
+}
+.relevance-bars span.fill-1{ height: 4px; }
+.relevance-bars span.fill-2{ height: 7px; }
+.relevance-bars span.fill-3{ height: 10px; }
+.relevance-bars span.fill-4{ height: 14px; }
+.relevance-bars span.on{ background: var(--brand-blue); box-shadow: 0 0 4px rgba(36,52,108,.45);}
+
+.company-stats{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.stat-block{ display: flex; flex-direction: column; gap: 2px;}
+.stat-value{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px; font-weight: 600;
+  color: var(--text-1); line-height: 1;
+}
+.stat-label{
+  font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--text-4); font-weight: 500;
+}
+
+.company-tags{
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin-top: 12px;
+}
+.company-tags .opp-tag{ font-size: 10px; padding: 2px 7px;}
+
+/* =====================================================================
+   COMPANY DETAIL
+   ===================================================================== */
+.detail-back{
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-3);
+  font-weight: 500; padding: 4px 0;
+  margin-bottom: 16px;
+  letter-spacing: .04em;
+  cursor: pointer;
+}
+.detail-back svg{ width: 13px; height: 13px; flex-shrink: 0;}
+.detail-back:hover{ color: var(--brand-blue);}
+/* Generic safe SVG sizing inside text-meta contexts */
+.opp-company-link svg{ width: 11px; height: 11px; flex-shrink: 0;}
+.detail-meta svg{ width: 12px; height: 12px; flex-shrink: 0;}
+.insight-card-head svg{ width: 14px; height: 14px; flex-shrink: 0;}
+.opp-tag svg{ flex-shrink: 0;}
+
+.detail-header{
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(36,52,108,.07), rgba(255,255,255,.4)),
+    rgba(255,255,255,0.65);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 26px 28px 22px;
+  margin-bottom: 22px;
+  overflow: hidden;
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: 0 4px 16px rgba(15,23,42,.04);
+}
+.detail-header-contours{
+  position: absolute; right: -40px; top: -50px;
+  width: 480px; height: 280px;
+  pointer-events: none;
+  opacity: .55;
+}
+.detail-header-content{
+  position: relative; z-index: 2;
+  display: flex; align-items: flex-start; gap: 18px;
+}
+.detail-icon{
+  width: 64px; height: 64px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--brand-blue), var(--brand-sky));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; letter-spacing: -0.03em;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(36,52,108,.28);
+}
+.detail-info{ flex: 1;}
+.detail-info h1{
+  font-size: 28px; font-weight: 600; letter-spacing: -0.02em;
+  color: var(--text-1); line-height: 1.1; margin-bottom: 6px;
+}
+.detail-meta{
+  display: flex; flex-wrap: wrap; gap: 14px;
+  font-size: 12px; color: var(--text-2);
+  margin-top: 4px;
+}
+.detail-meta span{ display: inline-flex; align-items: center; gap: 5px;}
+.detail-meta svg{ width: 12px; height: 12px; opacity: .65;}
+
+.detail-kpis{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 22px;
+}
+.kpi{
+  background: rgba(255,255,255,0.78);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.kpi-label{
+  font-size: 9px; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--text-4); font-weight: 500;
+}
+.kpi-value{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px; font-weight: 600;
+  color: var(--text-1); line-height: 1.1;
+  margin-top: 4px;
+}
+.kpi-trend{
+  font-size: 10px; color: var(--brand-blue);
+  margin-top: 2px;
+}
+
+/* Section heading */
+.section-head{
+  display: flex; align-items: center; gap: 10px;
+  margin: 26px 0 14px;
+}
+.section-head h2{
+  font-size: 14px; font-weight: 600;
+  letter-spacing: .05em; text-transform: uppercase;
+  color: var(--text-1);
+}
+.section-head .section-line{
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--line-2), transparent);
+}
+.section-head .section-count{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-3);
+}
+
+/* Timeline */
+.timeline{
+  position: relative;
+  padding-left: 22px;
+}
+.timeline::before{
+  content:""; position: absolute;
+  left: 7px; top: 8px; bottom: 8px;
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent,
+    var(--line-2) 8%,
+    var(--line-2) 92%,
+    transparent);
+}
+.timeline-item{
+  position: relative;
+  padding-bottom: 14px;
+}
+.timeline-item:last-child{ padding-bottom: 0;}
+.timeline-item::before{
+  content:""; position: absolute;
+  left: -22px; top: 18px;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--text-4);
+  box-sizing: border-box;
+}
+.timeline-item[data-rel="critical"]::before{ border-color: var(--rel-critical); box-shadow: 0 0 8px rgba(180,56,74,.35);}
+.timeline-item[data-rel="high"]::before{ border-color: var(--brand-blue); box-shadow: 0 0 8px rgba(36,52,108,.35);}
+.timeline-item[data-rel="medium"]::before{ border-color: var(--brand-sky); box-shadow: 0 0 6px rgba(201,162,76,.35);}
+
+/* Insight panels */
+.insights-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.insight-card{
+  background: rgba(255,255,255,0.72);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  box-shadow: 0 1px 2px rgba(15,23,42,.03);
+}
+.insight-card-head{
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+}
+.insight-card-head svg{ width: 14px; height: 14px; color: var(--brand-blue);}
+.insight-card-title{
+  font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--text-2); font-weight: 600;
+}
+.insight-card-body{
+  font-size: 12.5px; color: var(--text-2); line-height: 1.55;
+}
+.insight-card-body strong{ color: var(--text-1); font-weight: 600;}
+.insight-card-body .accent{ color: var(--brand-blue); font-weight: 500;}
+
+.tag-cloud{
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 10px;
+}
+.tag-cloud .tag-item{
+  font-size: 11px;
+  padding: 3px 9px;
+  background: rgba(36,52,108,.08);
+  border: 1px solid rgba(36,52,108,.18);
+  color: var(--brand-blue);
+  border-radius: 99px;
+}
+.tag-cloud .tag-item.dim{
+  background: rgba(15,23,42,0.04);
+  border-color: var(--line);
+  color: var(--text-2);
+}
+
+/* Empty state with contour decoration */
+.empty-state{
+  text-align: center; padding: 60px 20px;
+  position: relative;
+  color: var(--text-3);
+}
+.empty-state h3{
+  font-size: 16px; color: var(--text-2); margin-bottom: 4px;
+  font-weight: 500;
+}
+.empty-state p{ font-size: 12px;}
+
+/* Page-level intro card (for analysis or settings stub views) */
+.placeholder-view{
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 60vh;
+  text-align: center;
+  position: relative;
+}
+.placeholder-view .pv-icon{
+  width: 72px; height: 72px; margin-bottom: 16px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(36,52,108,.08);
+  border: 1px solid rgba(36,52,108,.2);
+  color: var(--brand-blue);
+}
+.placeholder-view h2{
+  font-size: 18px; font-weight: 600; color: var(--text-1);
+  margin-bottom: 6px; letter-spacing: -0.01em;
+}
+.placeholder-view p{ font-size: 12.5px; color: var(--text-3); max-width: 380px;}
+
+/* fade-in for view changes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.view-anim{ animation: fadeIn .25s ease; }
+
+/* For staggered card reveal */
+.opp-card, .company-card{ animation: fadeIn .35s ease backwards; }
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     GLOBAL BACKGROUND - subtle topographic contour lines
+     ============================================================ -->
+<div class="bg-contours">
+  <div class="gradient-overlay"></div>
+  <svg width="100%" height="100%" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice"
+       style="position:absolute;inset:0;">
+    <!-- Bottom-right "valley" contour cluster -->
+    <g fill="none" stroke="#24346C" stroke-width="0.8" stroke-linecap="round" opacity="0.18">
+      <path d="M -50,820 C 200,720 400,790 650,700 C 880,620 1100,690 1400,610 C 1550,580 1650,610 1700,600"/>
+      <path d="M -50,790 C 210,690 410,760 660,670 C 890,590 1110,660 1410,580 C 1560,550 1660,580 1700,570" opacity="0.85"/>
+      <path d="M -50,760 C 220,660 420,730 670,640 C 900,560 1120,630 1420,550 C 1570,520 1670,550 1700,540" opacity="0.7"/>
+      <path d="M -50,730 C 230,630 430,700 680,610 C 910,530 1130,600 1430,520 C 1580,490 1680,520 1700,510" opacity="0.55"/>
+      <path d="M -50,700 C 240,600 440,670 690,580 C 920,500 1140,570 1440,490 C 1590,460 1690,490 1700,480" opacity="0.45"/>
+      <path d="M -50,670 C 250,570 450,640 700,550 C 930,470 1150,540 1450,460 C 1600,430 1700,460 1710,450" opacity="0.32"/>
+      <path d="M -50,640 C 260,540 460,610 710,520 C 940,440 1160,510 1460,430 C 1610,400 1710,430 1720,420" opacity="0.22"/>
+    </g>
+
+    <!-- Top wave cluster -->
+    <g fill="none" stroke="#33478C" stroke-width="0.8" stroke-linecap="round" opacity="0.15">
+      <path d="M -50,180 C 200,80 400,150 650,90 C 880,40 1100,90 1400,30 C 1550,10 1650,30 1700,20" opacity="0.85"/>
+      <path d="M -50,210 C 210,110 410,180 660,120 C 890,70 1110,120 1410,60 C 1560,40 1660,60 1700,50" opacity="0.7"/>
+      <path d="M -50,240 C 220,140 420,210 670,150 C 900,100 1120,150 1420,90 C 1570,70 1670,90 1700,80" opacity="0.55"/>
+      <path d="M -50,270 C 230,170 430,240 680,180 C 910,130 1130,180 1430,120 C 1580,100 1680,120 1700,110" opacity="0.4"/>
+      <path d="M -50,300 C 240,200 440,270 690,210 C 920,160 1140,210 1440,150 C 1590,130 1690,150 1710,140" opacity="0.28"/>
+    </g>
+
+    <!-- Index contours (darker — the "key" line of each cluster) -->
+    <g fill="none" stroke="#24346C" stroke-width="1.3" stroke-linecap="round" opacity="0.30">
+      <path d="M -50,820 C 200,720 400,790 650,700 C 880,620 1100,690 1400,610 C 1550,580 1650,610 1700,600"/>
+      <path d="M -50,180 C 200,80 400,150 650,90 C 880,40 1100,90 1400,30 C 1550,10 1650,30 1700,20"/>
+    </g>
+
+    <!-- Mid-area horizontal sweep (subtle middle layer) -->
+    <g fill="none" stroke="#C9A24C" stroke-width="0.6" stroke-linecap="round" opacity="0.18">
+      <path d="M -50,460 C 240,420 440,470 690,440 C 920,415 1140,455 1440,425 C 1590,410 1690,425 1710,420"/>
+      <path d="M -50,490 C 240,450 440,500 690,470 C 920,445 1140,485 1440,455 C 1590,440 1690,455 1710,450" opacity="0.7"/>
+    </g>
+  </svg>
+</div>
+
+<!-- ============================================================
+     APP SHELL
+     ============================================================ -->
+<div class="app">
+
+  <!-- ============================================================
+       FLOATING HAMBURGER (liquid glass circle, top-left)
+       ============================================================ -->
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir menú">
+    <span class="hamburger-icon">
+      <span></span><span></span><span></span>
+    </span>
+  </button>
+
+  <!-- ============================================================
+       MENU DRAWER (dropdown from hamburger)
+       ============================================================ -->
+  <aside class="menu-drawer" id="menuDrawer" aria-hidden="true">
+
+    <div class="brand">
+      <div class="brand-logo-wrap">
+        <img class="brand-logo-app" src="assets/logo.png" alt="San Telmo Business School">
+      </div>
+      <div class="brand-meta">
+        <div class="brand-product">Business Scanner</div>
+        <div class="brand-tag">Escucha activa · Salud</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Navegación</div>
+    <nav class="nav" id="mainNav">
+      <button class="nav-item active" data-view="opportunities">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12h3l2-5 4 10 3-8 2 3h6"/>
+        </svg>
+        <span class="label">Señales</span>
+        <span class="badge" id="badgeOpps">22</span>
+      </button>
+      <button class="nav-item" data-view="people">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span class="label">Personas</span>
+        <span class="badge" id="badgePeople">12</span>
+      </button>
+      <button class="nav-item" data-view="centers">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
+          <path d="M12 7v6"/><path d="M9 10h6"/>
+        </svg>
+        <span class="label">Centros</span>
+        <span class="badge" id="badgeCenters">8</span>
+      </button>
+      <button class="nav-item" data-view="sources">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/>
+          <path d="M2 17h20"/><path d="M8 12h8"/><path d="M8 8h8"/>
+        </svg>
+        <span class="label">Fuentes</span>
+        <span class="badge">8</span>
+      </button>
+    </nav>
+
+    <div class="nav-label">Sistema</div>
+    <nav class="nav">
+      <button class="nav-item" data-view="settings">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+        </svg>
+        <span class="label">Configuración</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="status-row">
+        <span class="status-dot"></span>
+        <div>
+          <div class="status-text">Scanner activo</div>
+        </div>
+      </div>
+      <div class="status-meta">
+        <span>Última sync</span>
+        <span id="lastSync">hace 4 min</span>
+      </div>
+      <div class="status-meta">
+        <span>Hoy detectadas</span>
+        <span style="color:var(--brand-gold-2); font-weight:600;">+5 señales</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Backdrop while menu is open (click outside to close) -->
+  <div class="menu-backdrop" id="menuBackdrop"></div>
+
+  <!-- ============================================================
+       MAIN
+       ============================================================ -->
+  <main class="main">
+
+    <!-- Top bar (will update title per view) -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="page-eyebrow"><span class="live"></span>Live · Escucha activa · Línea de Salud</div>
+        <h1 class="page-title" id="pageTitle">Señales <span class="accent">detectadas</span></h1>
+      </div>
+      <div class="topbar-right">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input id="searchInput" type="text" placeholder="Buscar persona, centro, hospital, programa...">
+        </div>
+        <button class="icon-btn" title="Notificaciones">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+          </svg>
+          <span class="dot-mark"></span>
+        </button>
+        <div class="user-chip">
+          <div class="user-avatar">ST</div>
+          <div class="user-info">
+            <div class="user-name">Dirección de Salud</div>
+            <div class="user-role">San Telmo · AD-S</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Filter row (sector/vertical apply globally; source chips only on opps view) -->
+    <div class="filter-row" id="filterRow">
+
+      <!-- Global filters: Perfil + Titularidad DESTACADOS (núcleo de la segmentación de la escucha) -->
+      <div class="primary-filters" id="primaryFilters">
+        <span class="pf-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+          Segmenta la escucha
+        </span>
+        <div class="filter-dd-wrap">
+          <button class="filter-dd filter-dd--primary" id="ddBtnSector" data-dd="sector">
+            <span class="dd-key">Perfil</span>
+            <span class="dd-val" id="ddValSector">Todos</span>
+            <svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+
+        <div class="filter-dd-wrap">
+          <button class="filter-dd filter-dd--primary" id="ddBtnVertical" data-dd="vertical">
+            <span class="dd-key">Titularidad</span>
+            <span class="dd-val" id="ddValVertical">Todas</span>
+            <svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-divider"></div>
+
+      <!-- Source chips (opps view only) — San Telmo escucha 2 fuentes -->
+      <button class="filter-chip filter-source active" data-filter="all">Todas <span class="chip-count" id="cntAll">22</span></button>
+      <button class="filter-chip filter-source" data-filter="linkedin">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 1 1 8.3 6.5a1.78 1.78 0 0 1-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0 0 13 14.19a.66.66 0 0 0 0 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 0 1 2.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+        LinkedIn <span class="chip-count" id="cntLinkedin">7</span>
+      </button>
+      <button class="filter-chip filter-source" data-filter="media">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2 2 2 0 0 1-2-2V11h4"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></svg>
+        Medios especializados <span class="chip-count" id="cntMedia">5</span>
+      </button>
+      <div class="filter-sort">
+        <span>Ordenado por</span>
+        <span class="sort-key">↓ más recientes</span>
+      </div>
+    </div>
+
+    <!-- The dynamic content area -->
+    <div class="content" id="content"></div>
+
+  </main>
+</div>
+
+<!-- Filter-dropdown popovers (kept at body root to escape any containing block created by backdrop-filter ancestors) -->
+<div class="dd-popover" id="ddPopSector"></div>
+<div class="dd-popover" id="ddPopVertical"></div>
+
+<script>
+/* =====================================================================
+   ICON LIBRARY (inline SVG factories)
+   ===================================================================== */
+const Icon = {
+  linkedin: () => `<svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 1 1 8.3 6.5a1.78 1.78 0 0 1-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0 0 13 14.19a.66.66 0 0 0 0 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 0 1 2.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>`,
+  googleNews: () => `<svg viewBox="0 0 24 24" fill="none" stroke="#33478C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2 2 2 0 0 1-2-2V11h4"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></svg>`,
+  tender: () => `<svg viewBox="0 0 24 24" fill="none" stroke="#B4384A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 7v6c0 5 3.5 9 8 9s8-4 8-9V7l-8-5z"/><path d="m9 12 2 2 4-4"/></svg>`,
+  local: () => `<svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.5a8 8 0 0 1 16 0c0 7-8 11.5-8 11.5z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  capital: () => `<svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 6-6"/><circle cx="11" cy="10" r="0.5" fill="#16A34A"/></svg>`,
+  twitter: () => `<svg viewBox="0 0 24 24" fill="#0F172A"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
+  external: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>`,
+  pin: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.5a8 8 0 0 1 16 0c0 7-8 11.5-8 11.5z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  briefcase: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`,
+  euro: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.5 5A8 8 0 0 0 6 12a8 8 0 0 0 12.5 7"/><path d="M3 10h11"/><path d="M3 14h11"/></svg>`,
+  building: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>`,
+  trending: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg>`,
+  bulb: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.6 1 1.5 1 2.3v1h6v-1c0-.8.4-1.7 1-2.3A7 7 0 0 0 12 2z"/></svg>`,
+  signal: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg>`,
+  back: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+  arrow: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`,
+  mediaHealth: () => `<svg viewBox="0 0 24 24" fill="none" stroke="#33478C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2 2 2 0 0 1-2-2V11h4"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M13 6h-3v3"/><path d="M11.5 6v3M10 7.5h3" transform="translate(0.5 -0.5)"/></svg>`,
+  user: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  users: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  hospital: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M12 7v6"/><path d="M9 10h6"/></svg>`,
+  medal: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/></svg>`,
+  cap: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>`,
+  bell: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>`,
+};
+
+/* =====================================================================
+   SAMPLE DATA — mercado nicho de ejemplo
+   (datos ficticios; sustituir por el mercado objetivo real del cliente)
+   ===================================================================== */
+// Helper: format date relative to "now"
+const NOW = new Date('2026-05-06T11:48:00');
+
+const SOURCES = {
+  linkedin_person: { label: 'LinkedIn · Perfil personal',    key: 'linkedin', icon: Icon.linkedin    },
+  linkedin_center: { label: 'LinkedIn · Perfil del centro',  key: 'linkedin', icon: Icon.linkedin    },
+  media:           { label: 'Medios especializados',         key: 'media',    icon: Icon.mediaHealth },
+};
+
+const TYPE_TAGS = {
+  nombramiento:   { label: 'Nombramiento',   class: 'job' },
+  ascenso:        { label: 'Ascenso',        class: 'job' },
+  nuevo_centro:   { label: 'Nuevo centro',   class: 'capital' },
+  ampliacion:     { label: 'Ampliación',     class: '' },
+  reconocimiento: { label: 'Reconocimiento', class: '' },
+  mencion:        { label: 'Mención',        class: '' },
+};
+
+/* ---------------------------------------------------------------------
+   CENTROS — un perfil por hospital / clínica escuchado.
+   Guarda el historial de noticias y las personas implicadas.
+   titularidad: publico | privado | concertado | grupo
+   --------------------------------------------------------------------- */
+const CENTERS = [
+  { id:'quiron-madrid',    name:'Hospital Universitario Quirónsalud Madrid', titularidad:'privado',    location:'Madrid',            especialidad:'General · Alta complejidad', score:4, tags:['Privado','Grupo Quirónsalud','Alta complejidad'] },
+  { id:'hm-monteprincipe', name:'HM Hospitales · Montepríncipe',             titularidad:'grupo',      location:'Madrid',            especialidad:'Cardiología · Oncología',    score:3, tags:['Grupo HM','Cardiología'] },
+  { id:'vithas-sevilla',   name:'Vithas Sevilla',                            titularidad:'privado',    location:'Sevilla',           especialidad:'General',                    score:3, tags:['Privado','Grupo Vithas'] },
+  { id:'la-paz',           name:'Hospital Universitario La Paz',             titularidad:'publico',    location:'Madrid',            especialidad:'General · Referencia',       score:4, tags:['Público','SERMAS','Referencia nacional'] },
+  { id:'virgen-rocio',     name:'Hospital Universitario Virgen del Rocío',   titularidad:'publico',    location:'Sevilla',           especialidad:'General · Trasplantes',      score:3, tags:['Público','SAS'] },
+  { id:'cun',              name:'Clínica Universidad de Navarra',            titularidad:'concertado', location:'Pamplona · Madrid', especialidad:'Investigación · Oncología',  score:4, tags:['Fundación','Investigación'] },
+  { id:'ribera-vinalopo',  name:'Hospital Universitario del Vinalopó',       titularidad:'concertado', location:'Elche · Alicante',  especialidad:'General',                    score:2, tags:['Concesión','Grupo Ribera'] },
+  { id:'quiron-cordoba',   name:'Nuevo Hospital Quirónsalud Córdoba',        titularidad:'privado',    location:'Córdoba',           especialidad:'General · En construcción',  score:3, tags:['Privado','Nuevo centro','Apertura 2027'] },
+];
+
+/* ---------------------------------------------------------------------
+   PERSONAS — directivos de hospitales + antiguos alumnos (importados del CRM).
+   relation: 'alumni' (antiguo alumno → felicitar) | 'prospect' (→ ofrecer formación)
+   Todos los alumni tienen perfil aunque no aparezcan en ninguna noticia.
+   --------------------------------------------------------------------- */
+const PEOPLE = [
+  { id:'marta-vidal',   name:'Dra. Marta Vidal Serra',   role:'Directora Gerente',        centerId:'quiron-madrid',    relation:'alumni',   program:'AD-S · Promoción 2019', location:'Madrid',   score:4, tags:['Antigua alumna','Gestión hospitalaria'] },
+  { id:'elena-ruiz',    name:'Dra. Elena Ruiz Montoro',  role:'Directora General',        centerId:'vithas-sevilla',   relation:'alumni',   program:'AD-S · Promoción 2022', location:'Sevilla',  score:4, tags:['Antigua alumna','Dirección general'] },
+  { id:'carmen-ferrer', name:'Dª. Carmen Ferrer Ibáñez', role:'Directora de Enfermería',  centerId:'la-paz',           relation:'alumni',   program:'AD-S · Promoción 2018', location:'Madrid',   score:3, tags:['Antigua alumna','Enfermería'] },
+  { id:'luis-cano',     name:'Dr. Luis Cano Herrera',    role:'Gerente',                  centerId:'virgen-rocio',     relation:'alumni',   program:'AD-S · Promoción 2020', location:'Sevilla',  score:3, tags:['Antiguo alumno','Sanidad pública'] },
+  { id:'javier-alonso', name:'Dr. Javier Alonso Prieto', role:'Director Médico',          centerId:'hm-monteprincipe', relation:'alumni',   program:'AD-S · Promoción 2021', location:'Madrid',   score:3, tags:['Antiguo alumno','Dirección médica'] },
+  { id:'pablo-marin',   name:'Dr. Pablo Marín Casas',    role:'Director Asistencial',     centerId:'cun',              relation:'alumni',   program:'AD-S · Promoción 2017', location:'Pamplona', score:2, tags:['Antiguo alumno','Importado del CRM'] },
+  { id:'nuria-saez',    name:'Dra. Nuria Sáez Vidal',    role:'Directora Gerente',        centerId:'la-paz',           relation:'prospect', program:null, location:'Madrid',   score:4, tags:['Prospecto','Recién nombrada'] },
+  { id:'fernando-gil',  name:'Dr. Fernando Gil Ochoa',   role:'Director General',         centerId:'ribera-vinalopo',  relation:'prospect', program:null, location:'Alicante', score:3, tags:['Prospecto','Grupo Ribera'] },
+  { id:'beatriz-lorca', name:'Dª. Beatriz Lorca Peña',   role:'Directora de Operaciones', centerId:'quiron-madrid',    relation:'prospect', program:null, location:'Madrid',   score:3, tags:['Prospecto','Operaciones'] },
+  { id:'andres-vega',   name:'Dr. Andrés Vega Molina',   role:'Consejero Delegado',       centerId:'quiron-cordoba',   relation:'prospect', program:null, location:'Córdoba',  score:3, tags:['Prospecto','Nuevo hospital'] },
+  { id:'ignacio-ponce', name:'Dr. Ignacio Ponce Ravel',  role:'Director Médico',          centerId:'cun',              relation:'prospect', program:null, location:'Madrid',   score:3, tags:['Prospecto','Dirección médica'] },
+  { id:'sofia-herran',  name:'Dª. Sofía Herrán Díaz',    role:'Directora Gerente',        centerId:'virgen-rocio',     relation:'prospect', program:null, location:'Sevilla',  score:2, tags:['Prospecto','Sanidad pública'] },
+];
+
+/* Taxonomías de filtrado (globales, afectan a las tres vistas) */
+const PROFILES = [   // selector "Perfil" — relación con San Telmo
+  { key:'all',      label:'Todos los perfiles' },
+  { key:'alumni',   label:'Antiguos alumnos' },
+  { key:'prospect', label:'Prospectos (no alumni)' },
+];
+const TITULARIDAD = [ // selector "Titularidad" del centro
+  { key:'all',        label:'Todas las titularidades' },
+  { key:'publico',    label:'Hospital público' },
+  { key:'privado',    label:'Hospital privado' },
+  { key:'concertado', label:'Concertado / Fundación' },
+  { key:'grupo',      label:'Grupo hospitalario' },
+];
+
+// Helper: parse 'YYYY-MM-DD HH:mm' to Date
+function D(s){ return new Date(s.replace(' ','T')); }
+
+/* ---------------------------------------------------------------------
+   SEÑALES — feed de escucha activa. Dos fuentes: medios especializados
+   de salud y LinkedIn. action: 'felicitar' (alumni) | 'formar' (prospecto/centro).
+   --------------------------------------------------------------------- */
+const SIGNALS = [
+  { id:'sg-2206', date:D('2026-05-06 09:42'), source:'media', type:'nombramiento', personId:'marta-vidal', centerId:'quiron-madrid', relevance:'critical', action:'felicitar',
+    title:'Marta Vidal, nueva Directora Gerente del Hospital Quirónsalud Madrid',
+    summary:'Redacción Médica publica el nombramiento. Marta Vidal es antigua alumna del programa AD-S (promoción 2019). Oportunidad inmediata para felicitarla en nombre de San Telmo y reforzar el vínculo con la escuela.',
+    tags:[['pin','Madrid'],['medal','Antigua alumna · AD-S 2019'],[null,'Hospital privado']] },
+
+  { id:'sg-2205', date:D('2026-05-06 08:10'), source:'linkedin_person', type:'nombramiento', personId:'marta-vidal', centerId:'quiron-madrid', relevance:'high', action:'felicitar',
+    title:'Marta Vidal anuncia en LinkedIn su nombramiento como Directora Gerente',
+    summary:'Publicación en su perfil personal confirmando el cargo. La misma señal detectada por dos fuentes (medio + LinkedIn): momento ideal para un comentario público de felicitación de San Telmo.',
+    tags:[['medal','Antigua alumna'],[null,'LinkedIn'],[null,'+320 reacciones']] },
+
+  { id:'sg-2204', date:D('2026-05-05 18:30'), source:'media', type:'nombramiento', personId:'nuria-saez', centerId:'la-paz', relevance:'critical', action:'formar',
+    title:'Nuria Sáez asume la Gerencia del Hospital Universitario La Paz',
+    summary:'Diario Médico anuncia su nombramiento al frente de uno de los mayores hospitales públicos del país. No consta como antigua alumna: encaje directo para ofrecerle los programas de Alta Dirección Sanitaria.',
+    tags:[['pin','Madrid'],[null,'Hospital público'],[null,'Prospecto formación']] },
+
+  { id:'sg-2203', date:D('2026-05-05 12:15'), source:'linkedin_person', type:'nombramiento', personId:'elena-ruiz', centerId:'vithas-sevilla', relevance:'high', action:'felicitar',
+    title:'Elena Ruiz, nombrada Directora General de Vithas Sevilla',
+    summary:'Anuncio en su perfil de LinkedIn. Antigua alumna AD-S (2022) que da el salto a la dirección general de un centro privado de referencia en Andalucía. Felicitación institucional recomendada.',
+    tags:[['pin','Sevilla'],['medal','Antigua alumna · AD-S 2022'],[null,'Hospital privado']] },
+
+  { id:'sg-2202', date:D('2026-05-05 09:00'), source:'media', type:'nuevo_centro', personId:'andres-vega', centerId:'quiron-cordoba', relevance:'high', action:'formar',
+    title:'Quirónsalud invertirá 180 M€ en un nuevo hospital en Córdoba',
+    summary:'ConSalud informa del proyecto, con Andrés Vega como consejero delegado del nuevo centro. Un hospital de nueva creación implica un equipo directivo nuevo: oportunidad de relación y de formación ejecutiva.',
+    tags:[['pin','Córdoba'],[null,'Nuevo hospital'],[null,'Apertura 2027']] },
+
+  { id:'sg-2201', date:D('2026-05-04 17:20'), source:'linkedin_center', type:'nombramiento', personId:'fernando-gil', centerId:'ribera-vinalopo', relevance:'high', action:'formar',
+    title:'El Hospital del Vinalopó nombra a Fernando Gil Director General',
+    summary:'Publicado en el perfil corporativo del centro en LinkedIn. Fernando Gil no figura en la base de antiguos alumnos: candidato claro para los programas de dirección del sector salud.',
+    tags:[['pin','Alicante'],[null,'Concesión'],[null,'Prospecto formación']] },
+
+  { id:'sg-2200', date:D('2026-05-04 10:05'), source:'media', type:'ascenso', personId:'carmen-ferrer', centerId:'la-paz', relevance:'medium', action:'felicitar',
+    title:'Carmen Ferrer asciende a Directora de Enfermería de La Paz',
+    summary:'El Global recoge la promoción interna. Antigua alumna AD-S (2018): buena ocasión para felicitarla y para dar visibilidad al recorrido de los egresados de San Telmo en la sanidad pública.',
+    tags:[['pin','Madrid'],['medal','Antigua alumna · AD-S 2018'],[null,'Hospital público']] },
+
+  { id:'sg-2199', date:D('2026-05-03 16:40'), source:'media', type:'reconocimiento', personId:'javier-alonso', centerId:'hm-monteprincipe', relevance:'medium', action:'felicitar',
+    title:'Javier Alonso, premiado por su modelo de gestión clínica',
+    summary:'Reconocimiento sectorial a la unidad que dirige en HM Montepríncipe. Antiguo alumno AD-S (2021). Felicitación y posible caso de éxito para comunicación de la escuela.',
+    tags:[['medal','Antiguo alumno · AD-S 2021'],[null,'Grupo HM'],[null,'Premio gestión']] },
+
+  { id:'sg-2198', date:D('2026-05-03 09:30'), source:'linkedin_person', type:'nombramiento', personId:'beatriz-lorca', centerId:'quiron-madrid', relevance:'medium', action:'formar',
+    title:'Beatriz Lorca, nueva Directora de Operaciones de Quirónsalud Madrid',
+    summary:'Anuncio en su perfil de LinkedIn. Perfil directivo en ascenso sin vínculo previo con San Telmo: candidata para los programas de Alta Dirección Sanitaria.',
+    tags:[['pin','Madrid'],[null,'Operaciones'],[null,'Prospecto formación']] },
+
+  { id:'sg-2197', date:D('2026-05-02 15:10'), source:'media', type:'nombramiento', personId:'luis-cano', centerId:'virgen-rocio', relevance:'medium', action:'felicitar',
+    title:'Luis Cano renueva como Gerente del Hospital Virgen del Rocío',
+    summary:'La Junta de Andalucía confirma su continuidad al frente del centro. Antiguo alumno AD-S (2020): mantener el contacto y felicitar la renovación.',
+    tags:[['pin','Sevilla'],['medal','Antiguo alumno · AD-S 2020'],[null,'Hospital público']] },
+
+  { id:'sg-2196', date:D('2026-05-02 08:45'), source:'media', type:'ampliacion', personId:'elena-ruiz', centerId:'vithas-sevilla', relevance:'medium', action:'felicitar',
+    title:'Vithas anuncia un plan de expansión con tres nuevos centros en Andalucía',
+    summary:'Plan liderado por su nueva Directora General, Elena Ruiz (antigua alumna). El crecimiento del grupo abre nuevas posiciones directivas y refuerza la relación institucional con la escuela.',
+    tags:[['pin','Andalucía'],['medal','Antigua alumna'],[null,'Expansión']] },
+
+  { id:'sg-2195', date:D('2026-04-30 14:00'), source:'media', type:'nombramiento', personId:'sofia-herran', centerId:'virgen-rocio', relevance:'medium', action:'formar',
+    title:'Sofía Herrán, nombrada Directora Gerente del Virgen del Rocío',
+    summary:'Nombramiento publicado en prensa sanitaria. No consta en la base de antiguos alumnos: oportunidad de captación para los programas de dirección del sector salud.',
+    tags:[['pin','Sevilla'],[null,'Hospital público'],[null,'Prospecto formación']] },
+
+  { id:'sg-2194', date:D('2026-04-29 11:25'), source:'linkedin_center', type:'nombramiento', personId:'ignacio-ponce', centerId:'cun', relevance:'medium', action:'formar',
+    title:'La Clínica Universidad de Navarra incorpora a Ignacio Ponce como Director Médico',
+    summary:'Anuncio en el perfil corporativo en LinkedIn. Perfil de alto nivel sin relación previa con San Telmo: candidato para formación ejecutiva especializada.',
+    tags:[['pin','Madrid'],[null,'Fundación'],[null,'Prospecto formación']] },
+
+  { id:'sg-2193', date:D('2026-04-29 09:00'), source:'media', type:'ampliacion', personId:null, centerId:'la-paz', relevance:'medium', action:'formar',
+    title:'La Paz amplía su bloque quirúrgico con seis nuevos quirófanos',
+    summary:'Ampliación asistencial que reorganizará equipos y mandos intermedios. Señal de contexto sobre un centro clave, útil para anticipar futuros movimientos directivos.',
+    tags:[['pin','Madrid'],[null,'Ampliación'],[null,'Hospital público']] },
+
+  { id:'sg-2192', date:D('2026-04-28 16:30'), source:'media', type:'nuevo_centro', personId:null, centerId:'quiron-cordoba', relevance:'high', action:'formar',
+    title:'Presentado el proyecto del nuevo Hospital Quirónsalud de Córdoba',
+    summary:'El grupo detalla el cronograma de obra y la futura estructura directiva. Un centro de nueva creación es una oportunidad temprana de relación institucional y formación de su equipo.',
+    tags:[['pin','Córdoba'],[null,'Nuevo hospital'],[null,'180 M€']] },
+
+  { id:'sg-2191', date:D('2026-04-27 10:15'), source:'linkedin_person', type:'mencion', personId:'fernando-gil', centerId:'ribera-vinalopo', relevance:'low', action:'formar',
+    title:'Fernando Gil comparte sus prioridades como nuevo Director General',
+    summary:'Publicación en LinkedIn con las líneas de su nuevo mandato. Refuerza el interés del perfil y ofrece contexto para una aproximación personalizada de formación.',
+    tags:[[null,'LinkedIn'],[null,'Prospecto'],[null,'Alicante']] },
+
+  { id:'sg-2190', date:D('2026-04-24 12:40'), source:'media', type:'reconocimiento', personId:'marta-vidal', centerId:'quiron-madrid', relevance:'medium', action:'felicitar',
+    title:'Marta Vidal, incluida en la lista de directivas sanitarias más influyentes',
+    summary:'Reconocimiento en un medio especializado, previo a su nombramiento como gerente. Antigua alumna con trayectoria destacada: excelente material para comunicación de San Telmo.',
+    tags:[['medal','Antigua alumna'],[null,'Reconocimiento'],[null,'Madrid']] },
+
+  { id:'sg-2189', date:D('2026-04-22 09:20'), source:'linkedin_center', type:'ampliacion', personId:null, centerId:'cun', relevance:'medium', action:'formar',
+    title:'La Clínica Universidad de Navarra abre una nueva unidad de terapias avanzadas',
+    summary:'Anuncio corporativo en LinkedIn. La creación de la unidad implicará nuevos responsables asistenciales, potenciales candidatos a formación directiva.',
+    tags:[[null,'Fundación'],[null,'Nueva unidad'],[null,'Pamplona']] },
+
+  { id:'sg-2188', date:D('2026-04-18 17:00'), source:'media', type:'nombramiento', personId:'javier-alonso', centerId:'hm-monteprincipe', relevance:'high', action:'felicitar',
+    title:'Javier Alonso asume la Dirección Médica de HM Montepríncipe',
+    summary:'Redacción Médica publica el nombramiento. Antiguo alumno AD-S (2021) que consolida su carrera directiva. Felicitación y seguimiento por parte de la escuela.',
+    tags:[['pin','Madrid'],['medal','Antiguo alumno · AD-S 2021'],[null,'Grupo HM']] },
+
+  { id:'sg-2187', date:D('2026-04-15 10:30'), source:'media', type:'mencion', personId:'nuria-saez', centerId:'la-paz', relevance:'low', action:'formar',
+    title:'Nuria Sáez, entrevistada sobre los retos de gestión del sistema público',
+    summary:'Entrevista en un medio especializado, semanas antes de asumir la gerencia de La Paz. Perfil en alza sin vínculo con San Telmo: seguir de cerca para una propuesta de formación.',
+    tags:[[null,'Entrevista'],[null,'Prospecto'],[null,'Madrid']] },
+];
+
+SIGNALS.sort((a,b)=> b.date - a.date);
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+const state = {
+  view: 'opportunities',   // opportunities(Señales) | people | person-detail | centers | center-detail | sources | settings
+  filter: 'all',           // fuente (chips): linkedin | media
+  sector: 'all',           // "Perfil" (relación): alumni | prospect
+  vertical: 'all',         // "Titularidad" del centro: publico | privado | concertado | grupo
+  search: '',
+  selectedId: null,
+};
+
+/* =====================================================================
+   ENTITY HELPERS
+   ===================================================================== */
+function getPerson(id){ return PEOPLE.find(p => p.id === id); }
+function getCenter(id){ return CENTERS.find(c => c.id === id); }
+function personSignals(id){ return SIGNALS.filter(s => s.personId === id); }
+function centerSignals(id){ return SIGNALS.filter(s => s.centerId === id); }
+function centerPeople(id){
+  const ids = new Set(SIGNALS.filter(s => s.centerId === id && s.personId).map(s => s.personId));
+  PEOPLE.forEach(p => { if (p.centerId === id) ids.add(p.id); });
+  return [...ids].map(getPerson).filter(Boolean);
+}
+function personInitials(name){
+  const clean = name.replace(/^(Dra\.|Dr\.|Dª\.|D\.)\s*/, '');
+  return clean.split(/[\s.]+/).filter(Boolean).slice(0,2).map(w => w[0]).join('').toUpperCase();
+}
+/* relation + titularidad de una señal (para filtros globales) */
+function getSignalCategory(op){
+  const p = op.personId ? getPerson(op.personId) : null;
+  const c = op.centerId ? getCenter(op.centerId) : null;
+  return { relation: p ? p.relation : null, titularidad: c ? c.titularidad : null };
+}
+function relLabel(r){ return r==='critical' ? 'Crítica' : r==='high' ? 'Alta' : r==='medium' ? 'Media' : 'Baja'; }
+function titLabel(t){ return t==='publico' ? 'Público' : t==='privado' ? 'Privado' : t==='concertado' ? 'Concertado' : t==='grupo' ? 'Grupo hospitalario' : '—'; }
+function actionMeta(a){
+  return a === 'felicitar'
+    ? { label:'Felicitar',          icon: Icon.medal, cls:'felicitar' }
+    : { label:'Ofrecer formación',  icon: Icon.cap,   cls:'formar' };
+}
+
+/* =====================================================================
+   DATE UTILITIES
+   ===================================================================== */
+function relativeTime(d){
+  const diff = (NOW - d) / 1000;
+  if (diff < 60) return 'hace un momento';
+  if (diff < 3600) return `hace ${Math.floor(diff/60)} min`;
+  if (diff < 86400) return `hace ${Math.floor(diff/3600)} h`;
+  const days = Math.floor(diff/86400);
+  if (days === 1) return 'ayer';
+  if (days < 7) return `hace ${days} d`;
+  return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short' });
+}
+function dayLabel(d){
+  const today = new Date(NOW); today.setHours(0,0,0,0);
+  const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+  const target = new Date(d); target.setHours(0,0,0,0);
+  if (target.getTime() === today.getTime()) return 'Hoy';
+  if (target.getTime() === yesterday.getTime()) return 'Ayer';
+  return d.toLocaleDateString('es-ES', { weekday:'long', day:'2-digit', month:'long' });
+}
+function isoDay(d){
+  const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function fmtDate(d){
+  return d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace(',','');
+}
+
+/* =====================================================================
+   RENDERERS
+   ===================================================================== */
+const TAG_ICONS = {
+  pin:       '<path d="M12 22s-8-4.5-8-11.5a8 8 0 0 1 16 0c0 7-8 11.5-8 11.5z"/><circle cx="12" cy="10" r="3"/>',
+  briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>',
+  medal:     '<circle cx="12" cy="15" r="6"/><path d="M8.5 10 6 3h12l-2.5 7"/>',
+  cap:       '<path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4"/>',
+};
+function tagPill(tag){
+  const [iconKey, text] = tag;
+  const ic = (iconKey && TAG_ICONS[iconKey])
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${TAG_ICONS[iconKey]}</svg>`
+    : '';
+  return `<span class="opp-tag">${ic}${text}</span>`;
+}
+
+/* ---- Señal (opportunity) card ------------------------------------- */
+function renderSignalCard(op, idx, opts){
+  opts = opts || {};
+  const src = SOURCES[op.source];
+  const person = op.personId ? getPerson(op.personId) : null;
+  const center = op.centerId ? getCenter(op.centerId) : null;
+  const typeTag = TYPE_TAGS[op.type];
+  const act = actionMeta(op.action);
+  const isAlumni = person && person.relation === 'alumni';
+  const cardClick = (!opts.noLink)
+    ? (person ? `onclick="openPerson('${person.id}')"` : (center ? `onclick="openCenter('${center.id}')"` : ''))
+    : '';
+  return `
+    <div class="opp-card" data-rel="${op.relevance}" data-id="${op.id}"
+         style="animation-delay:${Math.min(idx*40,400)}ms" ${cardClick}>
+      <div class="opp-source">${src.icon()}</div>
+      <div class="opp-body">
+        <div class="opp-meta-row">
+          <span class="opp-source-name">${src.label}</span>
+          <span class="opp-meta-sep">·</span>
+          <span class="opp-time mono">${relativeTime(op.date)} · ${fmtDate(op.date)}</span>
+          ${typeTag ? `<span class="opp-type-tag ${typeTag.class}">${typeTag.label}</span>` : ''}
+        </div>
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:3px;">
+          ${person ? `<a class="opp-company-link" onclick="event.stopPropagation(); openPerson('${person.id}')">${person.name} ${Icon.arrow()}</a>` : ''}
+          ${isAlumni ? `<span class="alumni-badge">${Icon.medal()} Antiguo alumno</span>` : ''}
+          ${center ? `<span class="opp-company-link" style="color:var(--text-3); cursor:pointer;" onclick="event.stopPropagation(); openCenter('${center.id}')">${person ? '· ' : ''}${center.name}</span>` : ''}
+        </div>
+        <div class="opp-title">${op.title}</div>
+        <div class="opp-summary">${op.summary}</div>
+        <div class="opp-tags">${op.tags.map(tagPill).join('')}</div>
+      </div>
+      <div class="opp-right">
+        <div class="opp-rel-badge ${op.relevance}">
+          <span class="rel-pip"></span>${relLabel(op.relevance)}
+        </div>
+        <span class="opp-action ${act.cls}" onclick="event.stopPropagation();">${act.icon()} ${act.label}</span>
+      </div>
+    </div>
+  `;
+}
+
+/* ---- SEÑALES view ------------------------------------------------- */
+function renderOpportunitiesView(){
+  let filtered = SIGNALS;
+  if (state.filter !== 'all'){
+    filtered = filtered.filter(o => SOURCES[o.source].key === state.filter);
+  }
+  if (state.sector !== 'all'){
+    filtered = filtered.filter(o => getSignalCategory(o).relation === state.sector);
+  }
+  if (state.vertical !== 'all'){
+    filtered = filtered.filter(o => getSignalCategory(o).titularidad === state.vertical);
+  }
+  if (state.search){
+    const q = state.search.toLowerCase();
+    filtered = filtered.filter(o => {
+      const p = o.personId ? getPerson(o.personId) : null;
+      const c = o.centerId ? getCenter(o.centerId) : null;
+      const text = [
+        o.title, o.summary,
+        p && p.name, p && p.role, p && p.program,
+        c && c.name, c && c.location,
+        ...(o.tags||[]).map(t => t[1] || '')
+      ].filter(Boolean).join(' ').toLowerCase();
+      return text.includes(q);
+    });
+  }
+
+  if (filtered.length === 0){
+    return `<div class="empty-state view-anim">
+      <h3>Sin señales para este filtro</h3>
+      <p>Prueba a quitar el filtro o ampliar la búsqueda.</p>
+    </div>`;
+  }
+
+  const groups = {};
+  for (const op of filtered){
+    const k = isoDay(op.date);
+    (groups[k] = groups[k] || []).push(op);
+  }
+  const dayKeys = Object.keys(groups).sort((a,b) => b.localeCompare(a));
+
+  let idx = 0;
+  return `<div class="opps-list view-anim">${
+    dayKeys.map(k => {
+      const items = groups[k];
+      const sample = items[0].date;
+      return `
+        <div class="day-divider">
+          <span>${dayLabel(sample)}</span>
+          <span class="day-count">${items.length} señal${items.length===1?'':'es'}</span>
+          <span class="day-line"></span>
+        </div>
+        ${items.map(op => renderSignalCard(op, idx++)).join('')}
+      `;
+    }).join('')
+  }</div>`;
+}
+
+/* ---- PERSONAS view ------------------------------------------------ */
+function renderPeopleView(){
+  let arr = [...PEOPLE];
+  arr.sort((a,b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    const al = Math.max(...personSignals(a.id).map(o=>+o.date), 0);
+    const bl = Math.max(...personSignals(b.id).map(o=>+o.date), 0);
+    return bl - al;
+  });
+  if (state.sector !== 'all') arr = arr.filter(p => p.relation === state.sector);
+  if (state.vertical !== 'all') arr = arr.filter(p => { const c = getCenter(p.centerId); return c && c.titularidad === state.vertical; });
+  if (state.search){
+    const q = state.search.toLowerCase();
+    arr = arr.filter(p => {
+      const c = getCenter(p.centerId);
+      return (p.name+' '+p.role+' '+(p.program||'')+' '+(c?c.name:'')+' '+(c?c.location:'')+' '+p.tags.join(' ')).toLowerCase().includes(q);
+    });
+  }
+  if (arr.length === 0){
+    return `<div class="empty-state view-anim"><h3>Sin personas que coincidan</h3><p>Ajusta el filtro o el término de búsqueda.</p></div>`;
+  }
+  return `<div class="companies-grid view-anim">${
+    arr.map((p, idx) => {
+      const c = getCenter(p.centerId);
+      const ops = personSignals(p.id);
+      const lastOp = ops.length ? ops.slice().sort((a,b)=>b.date-a.date)[0] : null;
+      return `
+        <div class="company-card" style="animation-delay:${Math.min(idx*30,300)}ms" onclick="openPerson('${p.id}')">
+          <div class="company-card-head">
+            <div style="display:flex; gap:12px; align-items:flex-start;">
+              <div class="company-icon">${personInitials(p.name)}</div>
+              <div>
+                <div class="company-name">${p.name}</div>
+                <div class="company-meta">${p.role}${c ? ' · ' + c.name : ''}</div>
+                <div style="margin-top:7px;">
+                  ${p.relation === 'alumni'
+                    ? `<span class="relation-tag alumni">${p.program || 'Antiguo alumno'}</span>`
+                    : `<span class="relation-tag prospect">Prospecto · formación</span>`}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="company-stats">
+            <div class="stat-block">
+              <div class="stat-value">${ops.length}</div>
+              <div class="stat-label">Señales</div>
+            </div>
+            <div class="stat-block">
+              <div class="stat-value" style="font-size:11px; padding-top:5px;">${lastOp ? relativeTime(lastOp.date) : '—'}</div>
+              <div class="stat-label">Última</div>
+            </div>
+            <div class="stat-block">
+              <div class="stat-value" style="font-size:11px; padding-top:5px;">${p.location}</div>
+              <div class="stat-label">Sede</div>
+            </div>
+          </div>
+          <div class="company-tags">${p.tags.map(t => `<span class="opp-tag">${t}</span>`).join('')}</div>
+        </div>
+      `;
+    }).join('')
+  }</div>`;
+}
+
+/* ---- PERSONA detail ----------------------------------------------- */
+function renderPersonDetail(personId){
+  const p = getPerson(personId);
+  if (!p) return `<div class="empty-state"><h3>Persona no encontrada</h3></div>`;
+  const c = getCenter(p.centerId);
+  const ops = personSignals(personId).sort((a,b) => b.date - a.date);
+  const firstOp = ops.length ? ops[ops.length-1] : null;
+  const lastOp = ops.length ? ops[0] : null;
+  const isAlumni = p.relation === 'alumni';
+  const srcCount = {};
+  ops.forEach(o => { srcCount[SOURCES[o.source].label] = (srcCount[SOURCES[o.source].label]||0) + 1; });
+
+  return `
+    <div class="view-anim">
+      <a class="detail-back" onclick="setView('people')">${Icon.back()} Volver al directorio de personas</a>
+
+      <div class="detail-header">
+        <svg class="detail-header-contours" viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke="#C9A24C" stroke-width="1" stroke-linecap="round" opacity="0.45">
+            <path d="M -10,220 C 90,180 160,200 230,170 C 300,140 380,160 500,140"/>
+            <path d="M -10,190 C 90,150 160,170 230,140 C 300,110 380,130 500,110" opacity="0.75"/>
+            <path d="M -10,160 C 90,120 160,140 230,110 C 300,80 380,100 500,80" opacity="0.5"/>
+          </g>
+          <g fill="none" stroke="#24346C" stroke-width="1.4" stroke-linecap="round" opacity="0.4">
+            <path d="M -10,220 C 90,180 160,200 230,170 C 300,140 380,160 500,140"/>
+          </g>
+        </svg>
+        <div class="detail-header-content">
+          <div class="detail-icon">${personInitials(p.name)}</div>
+          <div class="detail-info">
+            <h1>${p.name}</h1>
+            <div class="detail-meta">
+              <span>${Icon.briefcase()} ${p.role}</span>
+              <span>${Icon.hospital()} ${c ? c.name : '—'}</span>
+              <span>${Icon.pin()} ${p.location}</span>
+            </div>
+            <div style="margin-top:12px;">
+              ${isAlumni
+                ? `<span class="alumni-badge">${Icon.medal()} Antiguo alumno · ${p.program}</span>`
+                : `<span class="relation-tag prospect">Prospecto · candidato a formación</span>`}
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-kpis">
+          <div class="kpi">
+            <div class="kpi-label">Señales</div>
+            <div class="kpi-value">${ops.length}</div>
+            <div class="kpi-trend">${ops.filter(o=>(NOW - o.date) < 1000*60*60*24*30).length} este mes</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Primera detección</div>
+            <div class="kpi-value" style="font-size:14px;">${firstOp ? firstOp.date.toLocaleDateString('es-ES', {day:'2-digit', month:'short'}) : '—'}</div>
+            <div class="kpi-trend" style="color:var(--text-3);">${firstOp ? SOURCES[firstOp.source].label : 'Sin señales'}</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Última actividad</div>
+            <div class="kpi-value" style="font-size:14px;">${lastOp ? relativeTime(lastOp.date) : '—'}</div>
+            <div class="kpi-trend" style="color:var(--text-3);">${lastOp ? SOURCES[lastOp.source].label : '—'}</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Acción sugerida</div>
+            <div class="kpi-value" style="font-size:14px; color:${isAlumni ? 'var(--brand-gold-2)' : 'var(--brand-blue)'};">${isAlumni ? 'Felicitar' : 'Ofrecer formación'}</div>
+            <div class="kpi-trend" style="color:var(--text-3);">${isAlumni ? 'Vínculo con la escuela' : 'Programas AD-S'}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head"><h2>Insights</h2><span class="section-line"></span></div>
+      <div class="insights-grid">
+        <div class="insight-card">
+          <div class="insight-card-head">${Icon.bulb()}<span class="insight-card-title">Recomendación</span></div>
+          <div class="insight-card-body">
+            ${isAlumni
+              ? `<strong>Antiguo alumno</strong> del programa <span class="accent">${p.program}</span>. ${ops.length ? `${ops.length} señal${ops.length===1?'':'es'} detectada${ops.length===1?'':'s'}.` : 'Perfil importado del CRM, aún sin señales de cambio de posición — en escucha activa.'} Recomendación: <strong>felicitación institucional</strong> de San Telmo y mantenimiento del vínculo con la escuela.`
+              : `Directivo <strong>no vinculado</strong> a San Telmo, mencionado en ${ops.length} señal${ops.length===1?'':'es'}. Recomendación: activar la <span class="accent">secuencia de captación</span> para los programas de Alta Dirección Sanitaria (AD-S).`}
+          </div>
+          <div class="tag-cloud">${p.tags.map(t => `<span class="tag-item">${t}</span>`).join('')}</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-card-head">${Icon.signal()}<span class="insight-card-title">Canales de detección</span></div>
+          <div class="insight-card-body" style="display:flex; flex-direction:column; gap:6px;">
+            ${ops.length === 0
+              ? `<span style="color:var(--text-3);">Todavía sin señales. Perfil en monitorización pasiva.</span>`
+              : Object.entries(srcCount).sort((a,b)=>b[1]-a[1]).map(([label, count]) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--line);">
+                  <span style="font-size:12px;">${label}</span>
+                  <span class="mono" style="color:var(--brand-gold-2); font-size:12px;">${count} señal${count===1?'':'es'}</span>
+                </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Historial de señales</h2><span class="section-line"></span>
+        <span class="section-count mono">${ops.length} evento${ops.length===1?'':'s'} · cronológico</span>
+      </div>
+      <div class="timeline">
+        ${ops.length === 0
+          ? `<div class="empty-state"><h3>Sin señales registradas todavía</h3><p>El perfil se creó a partir de la importación del CRM.</p></div>`
+          : ops.map((op, idx) => `<div class="timeline-item" data-rel="${op.relevance}">${renderSignalCard(op, idx, {noLink:true})}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ---- CENTROS view ------------------------------------------------- */
+function renderCentersView(){
+  let arr = [...CENTERS];
+  arr.sort((a,b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    const al = Math.max(...centerSignals(a.id).map(o=>+o.date), 0);
+    const bl = Math.max(...centerSignals(b.id).map(o=>+o.date), 0);
+    return bl - al;
+  });
+  if (state.vertical !== 'all') arr = arr.filter(c => c.titularidad === state.vertical);
+  if (state.sector !== 'all') arr = arr.filter(c => centerPeople(c.id).some(p => p.relation === state.sector));
+  if (state.search){
+    const q = state.search.toLowerCase();
+    arr = arr.filter(c => (c.name+' '+c.location+' '+c.especialidad+' '+c.tags.join(' ')).toLowerCase().includes(q));
+  }
+  if (arr.length === 0){
+    return `<div class="empty-state view-anim"><h3>Sin centros que coincidan</h3><p>Ajusta el filtro o el término de búsqueda.</p></div>`;
+  }
+  return `<div class="companies-grid view-anim">${
+    arr.map((c, idx) => {
+      const ops = centerSignals(c.id);
+      const people = centerPeople(c.id);
+      const lastOp = ops.length ? ops.slice().sort((a,b)=>b.date-a.date)[0] : null;
+      const titCls = c.titularidad === 'publico' ? 'publico' : 'privado';
+      return `
+        <div class="company-card" style="animation-delay:${Math.min(idx*30,300)}ms" onclick="openCenter('${c.id}')">
+          <div class="company-card-head">
+            <div style="display:flex; gap:12px; align-items:flex-start;">
+              <div class="company-icon">${Icon.hospital()}</div>
+              <div>
+                <div class="company-name">${c.name}</div>
+                <div class="company-meta">${c.especialidad}</div>
+                <div style="margin-top:7px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                  <span class="titularidad-pill ${titCls}">${titLabel(c.titularidad)}</span>
+                  <span style="font-size:11px; color:var(--text-3);">${c.location}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="company-stats">
+            <div class="stat-block">
+              <div class="stat-value">${ops.length}</div>
+              <div class="stat-label">Señales</div>
+            </div>
+            <div class="stat-block">
+              <div class="stat-value">${people.length}</div>
+              <div class="stat-label">Personas</div>
+            </div>
+            <div class="stat-block">
+              <div class="stat-value" style="font-size:11px; padding-top:5px;">${lastOp ? relativeTime(lastOp.date) : '—'}</div>
+              <div class="stat-label">Última</div>
+            </div>
+          </div>
+          <div class="company-tags">${c.tags.map(t => `<span class="opp-tag">${t}</span>`).join('')}</div>
+        </div>
+      `;
+    }).join('')
+  }</div>`;
+}
+
+/* ---- CENTRO detail ------------------------------------------------ */
+function renderCenterDetail(centerId){
+  const c = getCenter(centerId);
+  if (!c) return `<div class="empty-state"><h3>Centro no encontrado</h3></div>`;
+  const ops = centerSignals(centerId).sort((a,b) => b.date - a.date);
+  const people = centerPeople(centerId);
+  const alumniCount = people.filter(p => p.relation === 'alumni').length;
+  const lastOp = ops.length ? ops[0] : null;
+  const titCls = c.titularidad === 'publico' ? 'publico' : 'privado';
+
+  return `
+    <div class="view-anim">
+      <a class="detail-back" onclick="setView('centers')">${Icon.back()} Volver al directorio de centros</a>
+
+      <div class="detail-header">
+        <svg class="detail-header-contours" viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke="#24346C" stroke-width="1" stroke-linecap="round" opacity="0.35">
+            <path d="M -10,210 C 90,170 160,190 230,160 C 300,130 380,150 500,130"/>
+            <path d="M -10,180 C 90,140 160,160 230,130 C 300,100 380,120 500,100" opacity="0.7"/>
+          </g>
+        </svg>
+        <div class="detail-header-content">
+          <div class="detail-icon">${Icon.hospital()}</div>
+          <div class="detail-info">
+            <h1>${c.name}</h1>
+            <div class="detail-meta">
+              <span>${Icon.pin()} ${c.location}</span>
+              <span>${Icon.building()} ${c.especialidad}</span>
+            </div>
+            <div style="margin-top:12px;"><span class="titularidad-pill ${titCls}">${titLabel(c.titularidad)}</span></div>
+          </div>
+        </div>
+
+        <div class="detail-kpis">
+          <div class="kpi"><div class="kpi-label">Señales</div><div class="kpi-value">${ops.length}</div><div class="kpi-trend">historial completo</div></div>
+          <div class="kpi"><div class="kpi-label">Personas implicadas</div><div class="kpi-value">${people.length}</div><div class="kpi-trend" style="color:var(--text-3);">directivos y alumni</div></div>
+          <div class="kpi"><div class="kpi-label">Antiguos alumnos</div><div class="kpi-value" style="color:var(--brand-gold-2);">${alumniCount}</div><div class="kpi-trend" style="color:var(--text-3);">vinculados a San Telmo</div></div>
+          <div class="kpi"><div class="kpi-label">Última actividad</div><div class="kpi-value" style="font-size:14px;">${lastOp ? relativeTime(lastOp.date) : '—'}</div><div class="kpi-trend" style="color:var(--text-3);">${lastOp ? SOURCES[lastOp.source].label : '—'}</div></div>
+        </div>
+      </div>
+
+      <div class="section-head"><h2>Personas implicadas</h2><span class="section-line"></span><span class="section-count mono">${people.length}</span></div>
+      <div class="insights-grid" style="grid-template-columns:1fr;">
+        <div class="insight-card">
+          <div class="insight-card-body" style="display:flex; flex-direction:column; gap:2px;">
+            ${people.length === 0
+              ? `<span style="color:var(--text-3);">Sin personas asociadas todavía.</span>`
+              : people.map(p => `
+                <div onclick="openPerson('${p.id}')" style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px dashed var(--line); cursor:pointer;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="company-icon" style="width:30px; height:30px; font-size:11px;">${personInitials(p.name)}</div>
+                    <div>
+                      <div style="font-size:13px; font-weight:600; color:var(--text-1);">${p.name}</div>
+                      <div style="font-size:11px; color:var(--text-3);">${p.role}</div>
+                    </div>
+                  </div>
+                  ${p.relation === 'alumni'
+                    ? `<span class="alumni-badge">${Icon.medal()} ${p.program}</span>`
+                    : `<span class="relation-tag prospect">Prospecto</span>`}
+                </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Historial de noticias</h2><span class="section-line"></span>
+        <span class="section-count mono">${ops.length} evento${ops.length===1?'':'s'} · cronológico</span>
+      </div>
+      <div class="timeline">
+        ${ops.length === 0
+          ? `<div class="empty-state"><h3>Sin noticias registradas todavía</h3></div>`
+          : ops.map((op, idx) => `<div class="timeline-item" data-rel="${op.relevance}">${renderSignalCard(op, idx)}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderPlaceholder(title, text, icon){
+  return `
+    <div class="placeholder-view view-anim">
+      <div class="pv-icon">${icon}</div>
+      <h2>${title}</h2>
+      <p>${text}</p>
+    </div>
+  `;
+}
+
+/* =====================================================================
+   VIEW DISPATCHER
+   ===================================================================== */
+function render(){
+  const content = document.getElementById('content');
+  const filterRow = document.getElementById('filterRow');
+  const pageTitle = document.getElementById('pageTitle');
+
+  const showFilterRow = ['opportunities','people','centers'].includes(state.view);
+  filterRow.style.display = showFilterRow ? '' : 'none';
+
+  // Detail views inherit their parent's body class (drives source-chip hiding)
+  const viewKey = state.view === 'person-detail' ? 'people'
+                : state.view === 'center-detail' ? 'centers'
+                : state.view;
+  document.body.className = 'view-' + viewKey;
+
+  const titles = {
+    'opportunities':  `Señales <span class="accent">detectadas</span>`,
+    'people':         `Directorio de <span class="accent">personas</span>`,
+    'person-detail':  `Ficha de <span class="accent">persona</span>`,
+    'centers':        `Directorio de <span class="accent">centros</span>`,
+    'center-detail':  `Ficha de <span class="accent">centro</span>`,
+    'sources':        `Fuentes <span class="accent">conectadas</span>`,
+    'settings':       `Configuración`,
+  };
+  pageTitle.innerHTML = titles[state.view] || titles['opportunities'];
+
+  if (state.view === 'opportunities') {
+    content.innerHTML = renderOpportunitiesView();
+  } else if (state.view === 'people') {
+    content.innerHTML = renderPeopleView();
+  } else if (state.view === 'person-detail') {
+    content.innerHTML = renderPersonDetail(state.selectedId);
+  } else if (state.view === 'centers') {
+    content.innerHTML = renderCentersView();
+  } else if (state.view === 'center-detail') {
+    content.innerHTML = renderCenterDetail(state.selectedId);
+  } else if (state.view === 'sources') {
+    content.innerHTML = renderPlaceholder(
+      'Configuración de fuentes',
+      'Estado y última sincronización de los dos canales de escucha activa: medios de comunicación especializados del sector salud y LinkedIn (perfiles de centros, de directivos actuales y de antiguos alumnos).',
+      Icon.signal()
+    );
+  } else if (state.view === 'settings') {
+    content.innerHTML = renderPlaceholder(
+      'Configuración general',
+      'Importación de antiguos alumnos desde el CRM, reglas de relevancia, plantillas de felicitación y de oferta formativa, avisos por email y equipo de San Telmo Business School.',
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>`
+    );
+  }
+
+  document.querySelectorAll('.nav-item').forEach(b => {
+    const v = b.dataset.view;
+    b.classList.toggle('active',
+      v === state.view ||
+      (state.view === 'person-detail' && v === 'people') ||
+      (state.view === 'center-detail' && v === 'centers'));
+  });
+
+  content.scrollTop = 0;
+}
+
+function setView(view){
+  state.view = view;
+  if (view !== 'person-detail' && view !== 'center-detail') state.selectedId = null;
+  render();
+}
+function openPerson(id){
+  state.selectedId = id;
+  state.view = 'person-detail';
+  render();
+}
+function openCenter(id){
+  state.selectedId = id;
+  state.view = 'center-detail';
+  render();
+}
+function setFilter(f){
+  state.filter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  render();
+}
+
+/* =====================================================================
+   FILTER COUNTERS
+   ===================================================================== */
+function updateCounts(){
+  const counts = { all: SIGNALS.length };
+  for (const op of SIGNALS){
+    const k = SOURCES[op.source].key;
+    counts[k] = (counts[k]||0) + 1;
+  }
+  const setIf = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setIf('cntAll', counts.all);
+  setIf('cntLinkedin', counts.linkedin || 0);
+  setIf('cntMedia', counts.media || 0);
+  setIf('badgeOpps', counts.all);
+  setIf('badgePeople', PEOPLE.length);
+  setIf('badgeCenters', CENTERS.length);
+}
+
+/* =====================================================================
+   EVENTS
+   ===================================================================== */
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const v = btn.dataset.view;
+    if (v) {
+      setView(v);
+      closeDrawer();
+    }
+  });
+});
+document.querySelectorAll('.filter-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f = btn.dataset.filter;
+    if (f) setFilter(f);
+  });
+});
+const searchInput = document.getElementById('searchInput');
+let searchTimer;
+searchInput.addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(()=>{
+    state.search = e.target.value.trim();
+    render();
+  }, 120);
+});
+
+/* ----------------------------------------------------------------
+   HAMBURGER + DRAWER
+   ---------------------------------------------------------------- */
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const menuDrawer   = document.getElementById('menuDrawer');
+const menuBackdrop = document.getElementById('menuBackdrop');
+
+function openDrawer(){
+  hamburgerBtn.classList.add('open');
+  menuDrawer.classList.add('open');
+  menuBackdrop.classList.add('open');
+  menuDrawer.setAttribute('aria-hidden', 'false');
+}
+function closeDrawer(){
+  hamburgerBtn.classList.remove('open');
+  menuDrawer.classList.remove('open');
+  menuBackdrop.classList.remove('open');
+  menuDrawer.setAttribute('aria-hidden', 'true');
+}
+function toggleDrawer(){
+  if (menuDrawer.classList.contains('open')) closeDrawer();
+  else openDrawer();
+}
+hamburgerBtn.addEventListener('click', toggleDrawer);
+menuBackdrop.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){
+    closeDrawer();
+    closeAllPopovers();
+  }
+});
+
+/* ----------------------------------------------------------------
+   FILTER DROPDOWNS (Sector / Vertical)
+   ---------------------------------------------------------------- */
+function buildPopover(popId, options, currentValue, onPick){
+  const pop = document.getElementById(popId);
+  pop.innerHTML = options.map(o => `
+    <button class="dd-option ${o.key === currentValue ? 'active' : ''}" data-value="${o.key}">
+      <span class="dd-check"></span>
+      <span>${o.label}</span>
+    </button>
+  `).join('');
+  pop.querySelectorAll('.dd-option').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      onPick(btn.dataset.value);
+      closeAllPopovers();
+    });
+  });
+}
+function closeAllPopovers(){
+  document.querySelectorAll('.dd-popover').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.filter-dd').forEach(b => b.classList.remove('open'));
+}
+function togglePopover(btnId, popId, options, currentValue, onPick){
+  const btn = document.getElementById(btnId);
+  const pop = document.getElementById(popId);
+  const wasOpen = pop.classList.contains('open');
+  closeAllPopovers();
+  if (!wasOpen){
+    buildPopover(popId, options, currentValue, onPick);
+    // Anchor popover via fixed coordinates so it escapes any overflow:auto ancestor
+    const rect = btn.getBoundingClientRect();
+    pop.style.top  = (rect.bottom + 6) + 'px';
+    pop.style.left = rect.left + 'px';
+    pop.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+
+document.getElementById('ddBtnSector').addEventListener('click', e => {
+  e.stopPropagation();
+  togglePopover('ddBtnSector', 'ddPopSector', PROFILES, state.sector, v => {
+    state.sector = v;
+    refreshFilterDdLabels();
+    render();
+  });
+});
+document.getElementById('ddBtnVertical').addEventListener('click', e => {
+  e.stopPropagation();
+  togglePopover('ddBtnVertical', 'ddPopVertical', TITULARIDAD, state.vertical, v => {
+    state.vertical = v;
+    refreshFilterDdLabels();
+    render();
+  });
+});
+
+function refreshFilterDdLabels(){
+  const sec = PROFILES.find(s => s.key === state.sector);
+  const ver = TITULARIDAD.find(v => v.key === state.vertical);
+  document.getElementById('ddValSector').textContent   = state.sector   === 'all' ? 'Todos' : sec.label;
+  document.getElementById('ddValVertical').textContent = state.vertical === 'all' ? 'Todas' : ver.label;
+  document.getElementById('ddBtnSector').classList.toggle('has-value', state.sector !== 'all');
+  document.getElementById('ddBtnVertical').classList.toggle('has-value', state.vertical !== 'all');
+}
+
+/* Click anywhere else to close any open popover */
+document.addEventListener('click', e => {
+  if (!e.target.closest('.filter-dd-wrap')) closeAllPopovers();
+});
+
+let syncMin = 4;
+setInterval(()=>{
+  syncMin += 1;
+  document.getElementById('lastSync').textContent =
+    syncMin < 60 ? `hace ${syncMin} min` : `hace ${Math.floor(syncMin/60)} h`;
+}, 60000);
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+refreshFilterDdLabels();
+updateCounts();
+render();
+
+</script>
+
+</body>
+</html>
